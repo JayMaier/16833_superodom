@@ -1,0 +1,3 @@
+[submodule "ws/ros_ws/src/VINS-Fusion"]
+	path = ws/ros_ws/src/VINS-Fusion
+	url = https://github.com/stevenf7/VINS-Fusion.git
