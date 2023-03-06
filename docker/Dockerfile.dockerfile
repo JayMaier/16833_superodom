@@ -1,6 +1,8 @@
-FROM ros:melodic
-RUN apt-get update && apt-get install -y \
-    ros-melodic-desktop-full
+FROM ros:noetic
+RUN apt-get update
+ENV DEBIAN_FRONTEND=noninteractive 
+RUN apt-get install -y \
+    ros-noetic-desktop-full
 
 
 # Add a user with the same user_id as the user outside the container
@@ -49,7 +51,7 @@ ADD entrypoints/ $entrypoint_container_path/
 # execute entrypoint script
 RUN sudo chmod +x -R $entrypoint_container_path/
 
-RUN sudo apt update -y
+
 
 
 WORKDIR /home/$USERNAME/
@@ -63,20 +65,37 @@ WORKDIR /home/$USERNAME/
 
 RUN sudo apt-get install -y libgoogle-glog-dev libgflags-dev libatlas-base-dev libsuitesparse-dev
 
-WORKDIR /home/$USERNAME/
+WORKDIR /home/$USERNAME/superodom_ws
 
-RUN tar zxf ceres-solver-2.1.0.tar.gz
-RUN mkdir ceres-bin && cd ceres-bin
-RUN cmake ../ceres-solver-2.1.0
-RUN make -j8
+
+RUN sudo git clone -b 2.1.0 https://ceres-solver.googlesource.com/ceres-solver
+
+WORKDIR /home/$USERNAME/superodom_ws/ceres-bin
+
+# RUN sudo mkdir ceres-bin && cd ceres-bin
+RUN sudo cmake ../ceres-solver
+RUN sudo make -j8
 RUN sudo make install
+
+# installing vins fusion stuff
+
+
+WORKDIR /home/$USERNAME/superodom_ws/ros_ws/src
+RUN ls
+RUN sudo git clone https://github.com/stevenf7/VINS-Fusion.git
+
+# WORKDIR /home/$USERNAME/superodom_ws/ros_ws
+
+# RUN rm -rf devel && rm -rf build
+# RUN . /opt/ros/noetic/setup.sh && catkin_make 
+
 
 # WORKDIR /home/$USERNAME/opencv/
 # RUN mkdir build
 # WORKDIR /home/$USERNAME/opencv/build
 # RUN cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/usr/local -D OPENCV_EXTRA_MODULES_PATH=/home/$USERNAME/opencv_contrib/modules/ ..
 # RUN make -j7 && sudo make install 
-
+RUN sudo apt update -y
 WORKDIR /home/$USERNAME/
 RUN rosdep update
 

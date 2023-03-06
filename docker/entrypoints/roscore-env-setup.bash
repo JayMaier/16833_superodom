@@ -74,13 +74,13 @@ add_ros_top_level_ws() {
     return;
   fi
   # Append to bash rc
-  echo "source /opt/ros/melodic/setup.bash" >> /$HOME/.$1
+  echo "source /opt/ros/noetic/setup.bash" >> /$HOME/.$1
   echo "# Source ROS Top Level Workspace " >> /$HOME/.$1
   if [[ ! -z $_ROS_DISTRO ]]; then
     echo "source /opt/ros/$_ROS_DISTRO/setup.bash " >> /$HOME/.$1
   fi
   echo "source $_ROS_WS " >> /$HOME/.$1
-  echo "export ROS_PACKAGE_PATH=\$ROS_PACKAGE_PATH:/home/developer/slam_ws/" >> /$HOME/.$1
+  echo "export ROS_PACKAGE_PATH=\$ROS_PACKAGE_PATH:/home/developer/superodom_ws/" >> /$HOME/.$1
 }
 
 # Add the ros workspace to be sourced
