@@ -1,8 +1,0 @@
-prefix=/home/developer/slam_ws/ros_ws/install
-
-Name: deblur_pkg
-Description: Description of deblur_pkg
-Version: 0.0.0
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: 

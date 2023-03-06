@@ -1,2 +1,0 @@
-orbslam-deblur-pkg
--DCATKIN_DEVEL_PREFIX=/home/developer/slam_ws/ros_ws/devel -DCMAKE_INSTALL_PREFIX=/home/developer/slam_ws/ros_ws/install -G Unix Makefiles
