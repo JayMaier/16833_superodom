@@ -90,11 +90,17 @@ RUN sudo git clone https://github.com/stevenf7/VINS-Fusion.git
 # RUN . /opt/ros/noetic/setup.sh && catkin_make 
 
 
-# WORKDIR /home/$USERNAME/opencv/
-# RUN mkdir build
-# WORKDIR /home/$USERNAME/opencv/build
-# RUN cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=/usr/local -D OPENCV_EXTRA_MODULES_PATH=/home/$USERNAME/opencv_contrib/modules/ ..
-# RUN make -j7 && sudo make install 
+WORKDIR /home/$USERNAME/superodom_ws
+RUN sudo git clone -b develop https://github.com/borglab/gtsam.git
+WORKDIR /home/$USERNAME/superodom_ws/gtsam/
+RUN sudo mkdir build
+WORKDIR /home/$USERNAME/superodom_ws/gtsam/build
+RUN pwd
+RUN ls -a ..
+RUN sudo cmake ..
+RUN sudo make install 
+
+
 RUN sudo apt update -y
 WORKDIR /home/$USERNAME/
 RUN rosdep update

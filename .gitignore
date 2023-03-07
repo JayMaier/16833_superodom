@@ -1,0 +1,3 @@
+ws/ros_ws/build
+ws/ros_ws/devel
+ws/*.bag
