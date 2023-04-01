@@ -21,7 +21,7 @@ USER $USERNAME
 WORKDIR /home/$USERNAME
 
    
-# RUN sudo apt install -y ros-melodic-mav-msgs ros-melodic-rosmon python-wstool python-jinja2  ros-melodic-geographic-msgs  libgeographic-dev  geographiclib-tools
+# RUN sudo apt install -y ros-noetic-mav-msgs ros-noetic-rosmon python-wstool python-jinja2  ros-noetic-geographic-msgs  libgeographic-dev  geographiclib-tools
 
 # RUN sudo apt-get install -y openssh-server python-dev python3-pip software-properties-common less vim gdb python-catkin-tools python-pip python-wheel nano
 

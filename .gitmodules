@@ -1,3 +1,6 @@
 [submodule "ws/ros_ws/src/VINS-Fusion"]
 	path = ws/ros_ws/src/VINS-Fusion
 	url = https://github.com/stevenf7/VINS-Fusion.git
+[submodule "ws/ros_ws/src/random_numbers"]
+	path = ws/ros_ws/src/random_numbers
+	url = https://github.com/ros-planning/random_numbers.git
