@@ -97,7 +97,7 @@ RUN sudo mkdir build
 WORKDIR /home/$USERNAME/superodom_ws/gtsam/build
 RUN pwd
 RUN ls -a ..
-RUN sudo cmake ..
+RUN sudo cmake -DGTSAM_USE_SYSTEM_EIGEN=ON ..
 RUN sudo make install 
 
 
