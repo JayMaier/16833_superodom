@@ -94,7 +94,7 @@ public:
     gtsam::Values currentEstimate;
 
     //Initialize Variables
-    boost::shared_ptr<gtsam::PreintegratedCombinedMeasurements::Params> IMUparams;
+    std::shared_ptr<gtsam::PreintegratedCombinedMeasurements::Params> IMUparams;
     std::shared_ptr<gtsam::PreintegrationType> preintegrated;
     std::deque<double> imu_times;
     std::deque<gtsam::Vector3> imu_linaccs;
@@ -118,7 +118,7 @@ private:
     void do_nominal_init();
     gtsam::CombinedImuFactor create_imu_factor(double updatetime);
     gtsam::Point3 triangulateFeature(super_odom::FeatureMeasurement feature);
-    boost::shared_ptr<gtsam::PreintegratedCombinedMeasurements::Params> imuParams();
+    std::shared_ptr<gtsam::PreintegratedCombinedMeasurements::Params> imuParams();
      
     // Ros Subscribers
     ros::NodeHandle nh;

@@ -48,7 +48,7 @@ VO_IMU_ISAM2::VO_IMU_ISAM2(ros::NodeHandle &nodehandle, image_transport::ImageTr
 }
 
 // Defining noise model for the IMU, where p is where this stuff is stored
-boost::shared_ptr<gtsam::PreintegratedCombinedMeasurements::Params> VO_IMU_ISAM2::imuParams() {
+std::shared_ptr<gtsam::PreintegratedCombinedMeasurements::Params> VO_IMU_ISAM2::imuParams() {
 
   // We use the sensor specs to build the noise model for the IMU factor.
   double accel_noise_sigma = 2.0;
