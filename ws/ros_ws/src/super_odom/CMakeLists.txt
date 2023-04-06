@@ -69,4 +69,6 @@ link_directories(
 )
 
 add_executable(vio_graph src/vio_graph.cpp src/parameters.cpp)
+add_executable(imu_graph src/imu_graph.cpp)
 target_link_libraries(vio_graph ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} gtsam gtsam_unstable)
+target_link_libraries(imu_graph ${catkin_LIBRARIES} ${OpenCV_LIBRARIES} gtsam gtsam_unstable)

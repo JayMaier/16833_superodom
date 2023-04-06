@@ -250,7 +250,7 @@ void VO_IMU_ISAM2::camCallback(const super_odom::CameraMeasurementPtr& camera_ms
     }
 
 void VO_IMU_ISAM2::initializeFactorGraph(){
-    ROS_INFO("Initializing Factor Graph");
+    ROS_INFO("Initializing VIO Factor Graph");
         
     //SET ISAM2 PARAMS
     ISAM2Params parameters;
