@@ -55,14 +55,38 @@ class IMU_Graph{
 
 		void voCallback(const geometry_msgs::PoseStamped &vo_msg){
 			// TODO: Handle coorindate transformations
-			auto frame = vo_msg.header.frame_id;
+			auto frame_id = vo_msg.header.frame_id;
 
-			Vector3 position (vo_msg.pose.position.x, vo_msg.pose.position.y, vo_msg.pose.position.z);
 			Eigen::Quaternion orientation (vo_msg.pose.orientation.w, \
 											vo_msg.pose.orientation.x, \
 											vo_msg.pose.orientation.y, \
 											vo_msg.pose.orientation.z);
-		
+
+			auto voPrior = Pose3(Rot3(orientation.normalized().toRotationMatrix()), \
+								 Point3(vo_msg.pose.position.x, \
+								 		vo_msg.pose.position.y, \
+										vo_msg.pose.position.z)
+								);
+
+			// TODO: Prior noise
+  			auto voPriorNoise = noiseModel::Diagonal::Sigmas(
+      				(Vector(6) << 0.1, 0.1, 0.1, 0.3, 0.3, 0.3).finished()
+					);
+
+			graph.addPrior(X(frame), voPrior, voPriorNoise);
+			smootherISAM2.update(graph, initialEstimate, newTimestamps);
+
+			currentEstimate = smootherISAM2.calculateEstimate();
+			prev_state =
+				gtsam::NavState(currentEstimate.at<Pose3>(X(frame)), currentEstimate.at<Vector3>(V(frame)));
+			prev_bias = currentEstimate.at<imuBias::ConstantBias>(B(frame));
+
+			graph.resize(0);
+			initialEstimate.clear();
+			newTimestamps.clear();
+			preintegrated->resetIntegrationAndSetBias(prev_bias);	
+
+			sendTfs(vo_msg.header.stamp.toSec());	
 		}
 
 		void imuCallback(const sensor_msgs::Imu &imu_msg){
@@ -107,29 +131,6 @@ class IMU_Graph{
 			}
 		}
 
-		void timerCallback(const ros::TimerEvent& event){
-
-			// if (graph.size() > 0){
-			smootherISAM2.update(graph, initialEstimate, newTimestamps);
-			// for(size_t i = 1; i < 7; ++i) { // Optionally perform multiple iSAM2 iterations
-			//     smootherISAM2.update();
-			// }
-				
-			// cout << "curr estimate" << endl;
-			currentEstimate = smootherISAM2.calculateEstimate();
-			prev_state =
-				gtsam::NavState(currentEstimate.at<Pose3>(X(frame)), currentEstimate.at<Vector3>(V(frame)));
-			prev_bias = currentEstimate.at<imuBias::ConstantBias>(B(frame));
-
-			// cout << "resize " << endl;
-			graph.resize(0);
-			initialEstimate.clear();
-			newTimestamps.clear();
-			preintegrated->resetIntegrationAndSetBias(prev_bias);
-			// }
-
-		}
-
 	private:
 
 		// Defining noise model for the IMU, where p is where this stuff is stored
@@ -166,8 +167,6 @@ class IMU_Graph{
 
 			return p;
 		}
-
-		
 
 
 		CombinedImuFactor create_imu_factor(double updatetime) {
@@ -231,11 +230,25 @@ class IMU_Graph{
 			frame = 0;
 		}
 
+		void sendTfs(double timestep){
+		    tf::Transform transform;
+    		tf::Quaternion q;
+
+
+			auto t = prev_state.pose().translation();
+			auto r = prev_state.pose().rotation();
+			transform.setOrigin(tf::Vector3(t(0), t(1), t(2)));
+			q.setRPY(r.roll(), r.pitch(), r.yaw());
+			transform.setRotation(q);
+			br.sendTransform(tf::StampedTransform(transform, ros::Time(timestep), "world", "imu"));
+		}
 		ros::Subscriber VIO_Sub;
 		ros::Subscriber IMU_Sub;
 		ros::Publisher IMU_Pub;
 		ros::NodeHandle nh;
-		ros::Timer imuTimer;
+
+		tf::TransformBroadcaster br;
+
 		// IMU Parameters are the same as from the VIO 
     	std::shared_ptr<gtsam::PreintegratedCombinedMeasurements::Params> IMUparams;
 
