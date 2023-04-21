@@ -90,7 +90,7 @@ void VO_IMU_ISAM2::initializeSubsAndPubs(){
     pose_pub = nh.advertise<geometry_msgs::PoseStamped>("vo/pose", 1);
 
     ros::Duration(0.5).sleep();
-    imuSub = nh.subscribe("/imu", 1000, &VO_IMU_ISAM2::imuCallback, this);
+    imuSub = nh.subscribe("/imu0", 1000, &VO_IMU_ISAM2::imuCallback, this);
     camSub = nh.subscribe("/features", 1000, &VO_IMU_ISAM2::camCallback, this);
     }
 
@@ -386,7 +386,7 @@ CombinedImuFactor VO_IMU_ISAM2::create_imu_factor(double updatetime) {
     // This will add to the pre-integration through each time step until it reaches the timestep of the camera
     while(imu_times.size() > 1 && imu_times.at(1) <= updatetime) {
         double dt = imu_times.at(1) - imu_times.at(0); // new dt
-        if (dt >= 0) {
+        if (dt > 0) {
             // Preintegrate this measurement!
             preintegrated->integrateMeasurement(imu_linaccs.at(0), imu_angvel.at(0), dt); // adds to the preintegration object
         }

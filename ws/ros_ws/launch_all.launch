@@ -1,0 +1,5 @@
+<launch>
+    <include file="$(find feature_tracker)/launch/euroc_feature_tracking.launch"/>
+    <include file="$(find super_odom)/launch/start_vio_graph.launch"/>
+</launch>
+

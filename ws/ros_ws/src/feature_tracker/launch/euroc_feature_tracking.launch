@@ -1,0 +1,17 @@
+<launch>    
+    <param name="/use_sim_time" value="true"/>
+
+    <node name="feat_tracking" pkg="feature_tracker" type="feature_tracker" respawn="false" 
+            args= "/home/developer/superodom_ws/ros_ws/src/VINS-Fusion/config/euroc/euroc_stereo_imu_config.yaml">
+    </node> 
+
+    <!-- UNCOMMENT THIS FOR SHAKY RVIZ  -->
+    <!-- <node type="rviz" name="rviz" pkg="rviz" args="-d $(find feature_tracker)/rviz/feature_tracker.config.rviz"  /> -->
+    <node name="rviz" pkg="rviz" type="rviz" output="log" args="-d $(find vins)/../config/vins_rviz_config.rviz" />
+
+
+    <!-- <node pkg="rosbag" type="record" name="rosbag_record_diag" output="screen" -->
+    <!-- args="record -O tmp/$(arg frequency)_$(arg count)_hans_reproduce.bag /period_shaky/vo/pathGT /period_shaky/vo/pose /track_count1 /track_count2 /track_count3" -->
+    <!-- />  -->
+            
+</launch>  
