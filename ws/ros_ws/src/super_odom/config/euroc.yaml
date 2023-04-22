@@ -21,7 +21,7 @@ width: 752
 height: 480
 
 # Extrinsic Camera Paramters 
-baseline: .01
+baseline: 0.03
 estimators: [1,2,3]  #1 , 2 ,3 ONLY 1 ESTIMATOR, 4 IS Up down, 5 is all 3
 # initX: 3.75
 # initY: 0.0

@@ -90,8 +90,8 @@ void VO_IMU_ISAM2::initializeSubsAndPubs(){
     pose_pub = nh.advertise<geometry_msgs::PoseStamped>("vo/pose", 1);
 
     // ros::Duration(0.5).sleep();
-    imuSub = nh.subscribe("/imu0", 1000, &VO_IMU_ISAM2::imuCallback, this);
-    camSub = nh.subscribe("/features", 1000, &VO_IMU_ISAM2::camCallback, this);
+    imuSub = nh.subscribe("/imu0", 1, &VO_IMU_ISAM2::imuCallback, this);
+    camSub = nh.subscribe("/features", 1, &VO_IMU_ISAM2::camCallback, this);
     }
 
 VO_IMU_ISAM2::~VO_IMU_ISAM2 () {} 
@@ -99,21 +99,21 @@ VO_IMU_ISAM2::~VO_IMU_ISAM2 () {}
 Point3 VO_IMU_ISAM2::triangulateFeature(super_odom::FeatureMeasurement feature){ 
 
     double d = feature.u0 - feature.u1;
-    // cout << "d " << d << endl;
-    // cout << "fx " << fx << endl;
-    // cout << "baseline " << baseline << endl;
+    cout << "d " << d << endl;
+    cout << "fx " << fx << endl;
+    cout << "baseline " << baseline << endl;
     double z = fx*baseline/d;
     // cout << "z " << z << endl;
-    double x = (feature.u0-cx)*z/fx;
+    double x = (feature.u0 - cx)*z/fx;
     // cout << "x " << x << endl;
-    double y = (feature.v0-cy)*z/fy;
+    double y = (feature.v0 - cy)*z/fy;
 
     Point3 camera_point = Point3(x,y,z); 
-    // cout << "camera_point" << camera_point << endl;
+    cout << "camera_point" << camera_point << endl;
     Point3 body_point = bodyToSensor.transformFrom(camera_point);
-    // cout << "body_point" << body_point << endl;
+    cout << "body_point" << body_point << endl;
     Point3 world_point = prop_state.pose().transformFrom(body_point);
-    // cout << "world_point" << world_point << endl;
+    cout << "world_point" << world_point << endl;
     return world_point;
 }
 
@@ -186,18 +186,20 @@ void VO_IMU_ISAM2::camCallback(const super_odom::CameraMeasurementPtr& camera_ms
         for (int i = 0; i < feature_vector.size(); i++){
             // cout << "in for loop" << endl;
             super_odom::FeatureMeasurement feature = feature_vector[i];
+
+            std::cout << feature_vector[i] << std::endl;
             
             // // u is horizontal, v is vertical
             // // These are checking that initial conditions aren't met and that the two features aren't essentially the same.
-            if ( (feature.u0 - feature.u1 ) > 20 || (feature.u0 - feature.u1 ) < 3 || (abs(feature.v0- feature.v1) > .4)){
-                // cout << "in this if" << endl;
+            if ( (feature.u0 - feature.u1 ) > 20 || (feature.u0 - feature.u1 ) < 3 || (abs(feature.v0- feature.v1) > 20)){
+                cout << "in this if" << endl;
                 continue;
             }
 
             Point3 world_point = triangulateFeature(feature); // finds world coordinate, only used for TF visualization and to initialize first estimate
-            // cout << world_point << endl;
+            cout << world_point << endl;
 
-            int landmark_id = feature.id + (camera_msg->section.data)*100000; // Define landmakr id, from feature
+            int landmark_id = feature.id + (camera_msg->section.data); // Define landmakr id, from feature
 
             landmarkIDs.push_back(landmark_id);
             int feature_id = landmark_id;
@@ -216,7 +218,7 @@ void VO_IMU_ISAM2::camCallback(const super_odom::CameraMeasurementPtr& camera_ms
             // cout << "generic stereo factor" << endl;
             // Generic Visual Factor, given the readings from the image, the current state, the Landmark, K matrix, and body2sensor transform.
             GenericStereoFactor<Pose3, Point3> visualFactor(StereoPoint2(feature.u0, feature.u1, feature.v0), 
-            huber, X(frame), L(landmark_id), K,bodyToSensor);
+            huber, X(frame), L(landmark_id), K, bodyToSensor);
             // cout << "graph emplace" << endl;
             graph.emplace_shared<GenericStereoFactor<Pose3, Point3> >(visualFactor);
             

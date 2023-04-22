@@ -61,13 +61,7 @@ cv::Mat img1_mid;
 cv::Mat img0_up;
 cv::Mat img1_up;
 
-double fx = 476.7030836014194;
-double fy = 476.7030836014194;
-double cx = 400.5;
-double cy = 400.5;
 int section = -1;
-
-double baseline = .025;
 
 double currVel = 0.0;
 
@@ -165,12 +159,14 @@ void pubStereoFeatures(map<int, vector<pair<int, Eigen::Matrix<double, 7, 1>>>> 
     int i = 0;
     for (auto const& feature : featureFrame){
         feature_msg_ptr->features.push_back(feature_tracker::FeatureMeasurement());
+        std::cout <<"Left " << feature.second[0].second[0] << " " << feature.second[0].second[1] << " " << feature.second[0].second[2] << " " << feature.second[0].second[3] << " " <<  feature.second[0].second[4] << std::endl;
+        std::cout <<"Right " << feature.second[1].second[0] << " " << feature.second[1].second[1] << " " << feature.second[1].second[2] << " " << feature.second[1].second[3] << " " <<  feature.second[1].second[4] << std::endl;
 
         feature_msg_ptr->features[i].id = feature.first;
-        feature_msg_ptr->features[i].u0 = feature.second[0].second[0]*4.6115862106007575e+02 + 752/2 + .5;
-        feature_msg_ptr->features[i].v0 = feature.second[0].second[1]*4.5975286598073296e+02 + 480/2 + .5;
-        feature_msg_ptr->features[i].u1 = feature.second[1].second[0]*4.6115862106007575e+02 + 752/2 + .5;
-        feature_msg_ptr->features[i].v1 = feature.second[1].second[1]*4.5975286598073296e+02 + 480/2 + .5;
+        feature_msg_ptr->features[i].u0 = feature.second[0].second[0]*4.6115862106007575e+02 +  362.65929181685937;
+        feature_msg_ptr->features[i].v0 = feature.second[0].second[1]*4.5975286598073296e+02 +  248.52105668448124;
+        feature_msg_ptr->features[i].u1 = feature.second[1].second[0]*4.6115862106007575e+02 +  362.65929181685937;
+        feature_msg_ptr->features[i].v1 = feature.second[1].second[1]*4.5975286598073296e+02 +  248.52105668448124;
 
         // feature_msg_ptr->features[i].id = feature.first;
         // feature_msg_ptr->features[i].u0 = feature.second[0].second[0]*476.7030836014194 + 400.5;
