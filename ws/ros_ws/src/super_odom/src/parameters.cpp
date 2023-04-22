@@ -138,8 +138,6 @@ void readParameters(ros::NodeHandle &nh){
     STEREO_T = (cv::Mat_<double>(3, 1) << bf / fx, 0., 0.);
     STEREO_T.convertTo(STEREO_T, CV_64F);
     
-    
-
     IMAGES_SIZE = cv::Size_<int>(width,height);
 
 }

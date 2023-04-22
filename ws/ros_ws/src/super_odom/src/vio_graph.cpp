@@ -89,7 +89,7 @@ void VO_IMU_ISAM2::initializeSubsAndPubs(){
     pathGT_pub = nh.advertise<geometry_msgs::PoseStamped>("vo/pathGT", 1);
     pose_pub = nh.advertise<geometry_msgs::PoseStamped>("vo/pose", 1);
 
-    ros::Duration(0.5).sleep();
+    // ros::Duration(0.5).sleep();
     imuSub = nh.subscribe("/imu0", 1000, &VO_IMU_ISAM2::imuCallback, this);
     camSub = nh.subscribe("/features", 1000, &VO_IMU_ISAM2::camCallback, this);
     }
@@ -119,7 +119,7 @@ Point3 VO_IMU_ISAM2::triangulateFeature(super_odom::FeatureMeasurement feature){
 
 void VO_IMU_ISAM2::camCallback(const super_odom::CameraMeasurementPtr& camera_msg){
 
-
+    cout << "camCallback" << endl;
     vector<super_odom::FeatureMeasurement> feature_vector = camera_msg->features;
     double timestep = camera_msg->header.stamp.toSec();
     auto gaussian = noiseModel::Isotropic::Sigma(3, 6.0);
@@ -547,9 +547,9 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "loc");
     ros::NodeHandle nh("~"); 
     readParameters(nh);
-    ros::Duration(0.5).sleep();
+    // ros::Duration(0.5).sleep();
 
-    // cout << "fx " << fx << endl;
+    // cout << "fx " << fx<< endl;
     image_transport::ImageTransport it(nh);
     VO_IMU_ISAM2 node(nh,it);
  

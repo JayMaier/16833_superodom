@@ -167,10 +167,10 @@ void pubStereoFeatures(map<int, vector<pair<int, Eigen::Matrix<double, 7, 1>>>> 
         feature_msg_ptr->features.push_back(feature_tracker::FeatureMeasurement());
 
         feature_msg_ptr->features[i].id = feature.first;
-        feature_msg_ptr->features[i].u0 = feature.second[0].second[0]*554.3827128 + 640/2 + .5;
-        feature_msg_ptr->features[i].v0 = feature.second[0].second[1]*554.3827128 + 480/2 + .5;
-        feature_msg_ptr->features[i].u1 = feature.second[1].second[0]*554.3827128 + 640/2 + .5;
-        feature_msg_ptr->features[i].v1 = feature.second[1].second[1]*554.3827128 + 480/2 + .5;
+        feature_msg_ptr->features[i].u0 = feature.second[0].second[0]*4.6115862106007575e+02 + 752/2 + .5;
+        feature_msg_ptr->features[i].v0 = feature.second[0].second[1]*4.5975286598073296e+02 + 480/2 + .5;
+        feature_msg_ptr->features[i].u1 = feature.second[1].second[0]*4.6115862106007575e+02 + 752/2 + .5;
+        feature_msg_ptr->features[i].v1 = feature.second[1].second[1]*4.5975286598073296e+02 + 480/2 + .5;
 
         // feature_msg_ptr->features[i].id = feature.first;
         // feature_msg_ptr->features[i].u0 = feature.second[0].second[0]*476.7030836014194 + 400.5;

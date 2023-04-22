@@ -1,6 +1,8 @@
 <launch>    
     <param name="/use_sim_time" value="true"/>
 
-    <node name="vio_graph" pkg="super_odom" type="vio_graph" respawn="false"></node> 
+    <node name="vio_graph" pkg="super_odom" type="vio_graph" respawn="false" output="screen">
+            <rosparam command="load" file="$(find super_odom)/config/euroc.yaml"/> 
+        </node> 
             
 </launch>  
