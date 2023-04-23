@@ -63,7 +63,7 @@ std::shared_ptr<gtsam::PreintegratedCombinedMeasurements::Params> VO_IMU_ISAM2::
   Matrix33 bias_omega_cov = I_3x3 * pow(gyro_bias_rw_sigma, 2);
   Matrix66 bias_acc_omega_int =
       I_6x6 * .0001;  // error in the bias used for preintegration
-
+  gtsam::Pose3 body_IMU_TF = Pose3(Rot3::Ypr(0.0,-1.57,0.0), Point3(0.0,0.0,0.0));
   auto p = PreintegratedCombinedMeasurements::Params::MakeSharedU(gravMag);
   // PreintegrationBase params:
   p->accelerometerCovariance =
@@ -78,6 +78,7 @@ std::shared_ptr<gtsam::PreintegratedCombinedMeasurements::Params> VO_IMU_ISAM2::
   p->biasAccCovariance = bias_acc_cov;      // acc bias in continuous
   p->biasOmegaCovariance = bias_omega_cov;  // gyro bias in continuous
   p->biasAccOmegaInt = bias_acc_omega_int;
+  p->body_P_sensor = body_IMU_TF;
 
   return p;
 }
