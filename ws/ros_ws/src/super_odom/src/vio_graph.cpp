@@ -50,20 +50,40 @@ VO_IMU_ISAM2::VO_IMU_ISAM2(ros::NodeHandle &nodehandle, image_transport::ImageTr
 // Defining noise model for the IMU, where p is where this stuff is stored
 std::shared_ptr<gtsam::PreintegratedCombinedMeasurements::Params> VO_IMU_ISAM2::imuParams() {
 
-  // We use the sensor specs to build the noise model for the IMU factor.
-  double accel_noise_sigma = 2.0;
-  double gyro_noise_sigma = 2.0;
-  double accel_bias_rw_sigma = 0.005;
-  double gyro_bias_rw_sigma = 0.005;
+ // We use the sensor specs to build the noise model for the IMU factor.
+  double accel_noise_sigma = 1.0;
+  double gyro_noise_sigma = 1.0;
+  double accel_bias_rw_sigma = 0.0001;
+  double gyro_bias_rw_sigma = 0.0001;
   Matrix33 measured_acc_cov = I_3x3 * pow(accel_noise_sigma, 2);
   Matrix33 measured_omega_cov = I_3x3 * pow(gyro_noise_sigma, 2);
   Matrix33 integration_error_cov =
-      I_3x3 * .0001;  // error committed in integrating position from velocities
+      I_3x3 * 0.0001;  // error committed in integrating position from velocities
   Matrix33 bias_acc_cov = I_3x3 * pow(accel_bias_rw_sigma, 2);
   Matrix33 bias_omega_cov = I_3x3 * pow(gyro_bias_rw_sigma, 2);
   Matrix66 bias_acc_omega_int =
       I_6x6 * .0001;  // error in the bias used for preintegration
   gtsam::Pose3 body_IMU_TF = Pose3(Rot3::Ypr(0.0,-1.57,0.0), Point3(0.0,0.0,0.0));
+      I_6x6 * 0.0001;  // error in the bias used for preintegration
+
+  gtsam::Pose3 body_IMU_TF = Pose3(Rot3::Ypr(0.0,0.0,0.0)		// auto frame_id = incoming_msg.header.frame_id;
+
+			// auto vo_msg = incoming_msg.pose;
+
+			// gtsam::Pose3 voPrior = gtsam::Pose3(gtsam::Rot3::Quaternion(vo_msg.orientation.w, \
+            //                                 vo_msg.orientation.x, vo_msg.orientation.y\
+            //                                 , vo_msg.orientation.z),
+            //                                 gtsam::Point3(vo_msg.position.x, vo_msg.position.y,vo_msg.position.z));
+
+        
+            // noiseModel::Isotropic::shared_ptr pose_correction_noise = noiseModel::Isotropic::Sigma(6, 30.0);
+	
+            // auto huberPrior = noiseModel::Robust::Create(
+            //     noiseModel::mEstimator::Cauchy::Create(1.0), pose_correction_noise);
+    
+			// double timestep = incoming_msg.header.stamp.toSec();, Point3(0.0,0.0,0.0));
+    
+
   auto p = PreintegratedCombinedMeasurements::Params::MakeSharedU(gravMag);
   // PreintegrationBase params:
   p->accelerometerCovariance =
@@ -120,13 +140,14 @@ Point3 VO_IMU_ISAM2::triangulateFeature(super_odom::FeatureMeasurement feature){
 
 void VO_IMU_ISAM2::camCallback(const super_odom::CameraMeasurementPtr& camera_msg){
 
-    cout << "camCallback" << endl;
+    // cout << "camCallback" << endl;
     vector<super_odom::FeatureMeasurement> feature_vector = camera_msg->features;
     double timestep = camera_msg->header.stamp.toSec();
     auto gaussian = noiseModel::Isotropic::Sigma(3, 6.0);
+    // cout << "accel_init_done" << endl;
 
     if (!accel_init_done) {return;}
-
+    // cout << "here1" << endl;
     auto huber = noiseModel::Robust::Create(
     noiseModel::mEstimator::GemanMcClure::Create(2.0), gaussian);
 
@@ -165,13 +186,6 @@ void VO_IMU_ISAM2::camCallback(const super_odom::CameraMeasurementPtr& camera_ms
             newTimestamps[X(frame)] = timestep;
             newTimestamps[V(frame)] = timestep; 
             newTimestamps[B(frame)] = timestep;
-
-            noiseModel::Isotropic::shared_ptr pose_correction_noise = noiseModel::Isotropic::Sigma(6, 10.0);
-
-            gtsam::PriorFactor<gtsam::Pose3> pose_factor(X(frame), imuPose,
-                                                        pose_correction_noise);
-
-            graph.add(pose_factor);
 
         }
 
@@ -257,7 +271,7 @@ void VO_IMU_ISAM2::initializeFactorGraph(){
         
     //SET ISAM2 PARAMS
     ISAM2Params parameters;
-    double lag = 3.0;
+    double lag = 2.0;
     parameters.relinearizeThreshold = 0.003; // Set the relin threshold to zero such that the batch estimate is recovered
     parameters.relinearizeSkip = 1; // Relinearize every time
     smootherISAM2 = IncrementalFixedLagSmoother(lag, parameters);

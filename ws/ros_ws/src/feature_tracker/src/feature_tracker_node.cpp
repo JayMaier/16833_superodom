@@ -158,6 +158,9 @@ void pubStereoFeatures(map<int, vector<pair<int, Eigen::Matrix<double, 7, 1>>>> 
     //xyz_uv_velocity << x, y, z, p_u, p_v, velocity_x, velocity_y;
     int i = 0;
     for (auto const& feature : featureFrame){
+        // std::cout <<"Left " << feature.second[0].second[0] << " " << feature.second[0].second[1] << " " << feature.second[0].second[2] << " " << feature.second[0].second[3] << " " <<  feature.second[0].second[4] << std::endl;
+        // std::cout <<"Right " << feature.second[1].second[0] << " " << feature.second[1].second[1] << " " << feature.second[1].second[2] << " " << feature.second[1].second[3] << " " <<  feature.second[1].second[4] << std::endl;
+
         feature_msg_ptr->features.push_back(feature_tracker::FeatureMeasurement());
         std::cout <<"Left " << feature.second[0].second[0] << " " << feature.second[0].second[1] << " " << feature.second[0].second[2] << " " << feature.second[0].second[3] << " " <<  feature.second[0].second[4] << std::endl;
         std::cout <<"Right " << feature.second[1].second[0] << " " << feature.second[1].second[1] << " " << feature.second[1].second[2] << " " << feature.second[1].second[3] << " " <<  feature.second[1].second[4] << std::endl;
