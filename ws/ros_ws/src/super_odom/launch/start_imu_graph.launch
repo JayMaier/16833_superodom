@@ -1,5 +1,5 @@
 <launch>    
-    <param name="/use_sim_time" value="true"/>
+    <!-- <param name="/use_sim_time" value="true"/> -->
 
     <node name="imu_graph" pkg="super_odom" type="imu_graph" respawn="false" output="screen">
             <rosparam command="load" file="$(find super_odom)/config/hans_loc.yaml"/> 
