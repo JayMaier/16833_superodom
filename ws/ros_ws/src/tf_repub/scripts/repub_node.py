@@ -10,8 +10,22 @@ def callback(msg):
     br = tf.TransformBroadcaster()
     trans = msg.transform
     # print(trans)
-    br.sendTransform((trans.translation.x, trans.translation.y, trans.translation.z),
-                    (trans.rotation.x, trans.rotation.y, trans.rotation.z, trans.rotation.w),
+    print("Pub")
+    q1 = [-0.016, 0.023, 0.113, 0.993]
+    q2 = [0.829, -0.01, 0.558, 0.015]
+
+    q1[3] = -q1[3]
+    qr = tf.transformations.quaternion_multiply(q2, q1)
+
+    # V1 Bag Easy
+    # br.sendTransform((trans.translation.x - 0.787, trans.translation.y - 2.178, trans.translation.z - 1.062),
+    #                 qr,
+    #                 msg.header.stamp,
+    #                 "vicon/firefly_sbx/firefly_sbx",
+    #                 "world")
+
+    br.sendTransform((trans.translation.x - 0.443, trans.translation.y - 2.062, trans.translation.z - 1.076),
+                    qr,
                     msg.header.stamp,
                     "vicon/firefly_sbx/firefly_sbx",
                     "world")
