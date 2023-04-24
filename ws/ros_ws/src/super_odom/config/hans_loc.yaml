@@ -1,0 +1,40 @@
+# Ros Topics
+# image0_topic: "/left_r200/camera/color/image_raw"
+# image1_topic: "/right_r200/camera/color/image_raw"
+
+image0_topic: "/camera/left/image_raw"
+image1_topic: "/camera/right/image_raw"
+
+visualize: true
+useGrav: true
+# Intrinsic Camera Paramters
+fx: 554.3827128226441
+fy: 554.3827128226441
+cx: 320.5
+cy: 240.5
+k1: 0.0
+k2: 0.0
+p1: 0.0
+p2: 0.0
+k3: 0.0
+width: 640
+height: 480
+
+# Extrinsic Camera Paramters 
+baseline: .1
+estimators: [1,2,3]  #1 , 2 ,3 ONLY 1 ESTIMATOR, 4 IS Up down, 5 is all 3
+# initX: 3.75
+# initY: 0.0
+# initZ: 1.25
+# initRoll: 0.0
+# initPitch: 0.0
+# initYaw: 1.570796
+initX: 0.0
+initY: 0.0 #0
+initZ: 1.1104 #1.0104
+
+initRoll: 0.0
+initPitch: 0 # 0.4 #0.62 #0.0
+initYaw: 0 # -0.15
+gravMag: 9.81
+#gravMag: 1.0
