@@ -41,6 +41,8 @@ using symbol_shorthand::V;
 using symbol_shorthand::B;
 using symbol_shorthand::L;
 
+double init_time = 0.0;
+
 class IMU_Graph{
 	public:
 		IMU_Graph(ros::NodeHandle nh){
@@ -61,7 +63,7 @@ class IMU_Graph{
 
 		void voCallback(const nav_msgs::Odometry &msg){
 			// TODO: Handle coorindate transformations
-            if (!accel_init_done) {return;}
+            // if (!accel_init_done) {return;}
 
 			auto frame_id = msg.header.frame_id;
 
@@ -79,27 +81,37 @@ class IMU_Graph{
                 noiseModel::mEstimator::Cauchy::Create(1.0), pose_correction_noise);
     
 			double timestep = msg.header.stamp.toSec();
+			cout <<"timestep: "<<  timestep - init_time << endl;
+
 
 			if (frame == 0){
-				newTimestamps[X(0)] = timestep;
-				newTimestamps[V(0)] = timestep;
-				newTimestamps[B(0)] = timestep;
+				
+				cout << "yo" << endl;
+				do_nominal_init();
+				init_time = timestep;
+				accel_init_done = true;
+			
+				newTimestamps[X(0)] = timestep - init_time;
+				newTimestamps[V(0)] = timestep - init_time;
+				newTimestamps[B(0)] = timestep - init_time;
+				
 				}
 			else {
 				std::cout << "Add IMU Factor" << std::endl;
 				// Add Imu Factor
-				CombinedImuFactor imufac = create_imu_factor(timestep);
+				CombinedImuFactor imufac = create_imu_factor(timestep - init_time);
 				// cout << "created imufac" <<endl;
 				graph.add(imufac);
 				// cout << frame << endl;
 				prop_state = preintegrated->predict(prev_state, prev_bias);
+				cout << prop_state.v() << endl;
 				initialEstimate.insert(X(frame), prop_state.pose());
 				initialEstimate.insert(V(frame), prop_state.v());
 				initialEstimate.insert(B(frame), prev_bias);   
 				// cout << "Added IMU Factor" << endl;
-				newTimestamps[X(frame)] = timestep;
-				newTimestamps[V(frame)] = timestep; 
-				newTimestamps[B(frame)] = timestep;
+				newTimestamps[X(frame)] = timestep - init_time;
+				newTimestamps[V(frame)] = timestep - init_time; 
+				newTimestamps[B(frame)] = timestep - init_time;
 
 				// TODO: Change this to priors coming from VO
 
@@ -107,12 +119,12 @@ class IMU_Graph{
                 gtsam::PriorFactor<gtsam::Pose3> pose_factor(X(frame), voPrior, pose_correction_noise);
 
 				graph.add(pose_factor);
-				accel_init_done = true;
+				
 				std::cout << "IMU CALLBACK" << std::endl;
 
                 	
 
-			}
+			// }
 
             smootherISAM2.update(graph, initialEstimate,newTimestamps);
             
@@ -127,10 +139,11 @@ class IMU_Graph{
             initialEstimate.clear();
             newTimestamps.clear();
             preintegrated->resetIntegrationAndSetBias(prev_bias);
+
             
             // cout << "in VIO callback" << endl;
-            sendTfs(timestep);
-            
+            sendTfs(timestep - init_time);
+			}
             frame ++;
 
             
@@ -139,22 +152,23 @@ class IMU_Graph{
 		void imuCallback(const sensor_msgs::Imu &imu_msg){
 			// std::cout << "FDSAFDSA" << std::endl;
 
-
+			if (!accel_init_done) {return;}
 		    // ROS_INFO("imuCallback");
 			geometry_msgs::Vector3 aV = imu_msg.angular_velocity;
 			geometry_msgs::Vector3 lA = imu_msg.linear_acceleration;
 			Vector3 measuredAcc(lA.x,lA.y,lA.z);
 			Vector3 measuredOmega(aV.x,aV.y,aV.z);
 			
-			
-			if (!accel_init_done){
-				cout << "yo" << endl;
-				do_nominal_init();
-			}
+			double timestep = imu_msg.header.stamp.toSec();
+			// if (!accel_init_done){
+			// 	cout << "yo" << endl;
+			// 	do_nominal_init();
+			// 	init_time = timestep;
+			// }
 			
 
-			double timestep = imu_msg.header.stamp.toSec();
-			imu_times.push_back(timestep);
+			
+			imu_times.push_back(timestep - init_time);
 			imu_linaccs.push_back(measuredAcc);
 			imu_angvel.push_back(measuredOmega);
 		}
@@ -167,12 +181,13 @@ class IMU_Graph{
 
 			// Pose prior 
 			auto priorPoseNoise = noiseModel::Diagonal::Sigmas(
-				(Vector(6) << Vector3::Constant(1.0), Vector3::Constant(1.0)).finished());
+				(Vector(6) << Vector3::Constant(0.1), Vector3::Constant(1.0)).finished());
 			graph.add(PriorFactor<Pose3>(X(0), priorPose, priorPoseNoise));
 			initialEstimate.insert(X(0), priorPose);
 
 			//Velocity Prior 
-			auto velnoise = noiseModel::Diagonal::Sigmas(Vector3(1.0, 1.0, 1.0));
+			auto velnoise = noiseModel::Diagonal::Sigmas(Vector3(1.0, 1.0,1.0));
+			priorVelocity = Vector3(0.0, 0.0, 0.0);
 			graph.add(PriorFactor<Vector3>(V(0), priorVelocity, velnoise));
 			initialEstimate.insert(V(0), priorVelocity);
 			
@@ -206,7 +221,9 @@ class IMU_Graph{
 			Matrix66 bias_acc_omega_int =
 				I_6x6 * .0001;  // error in the bias used for preintegration
 			gtsam::Pose3 body_IMU_TF = Pose3(Rot3::Quaternion(0.013489769078155169, 0.8297116036556285, -0.009124618852643316, 0.5579546775681852), Point3(0.0,0.0,0.0));
-			auto p = PreintegratedCombinedMeasurements::Params::MakeSharedU(0);
+			// gtsam::Pose3 body_IMU_TF = Pose3(Rot3::Ypr(0.0,0.0,0.0), Point3(0.0,0.0,0.0));
+			
+			auto p = PreintegratedCombinedMeasurements::Params::MakeSharedU(9.81);
 			// PreintegrationBase params:
 			p->accelerometerCovariance =
 				measured_acc_cov;  // acc white noise in continuous
