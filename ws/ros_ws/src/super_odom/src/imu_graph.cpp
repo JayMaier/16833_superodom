@@ -73,7 +73,7 @@ class IMU_Graph{
                                             gtsam::Point3(vo_msg.position.x, vo_msg.position.y,vo_msg.position.z));
 
         
-            noiseModel::Isotropic::shared_ptr pose_correction_noise = noiseModel::Isotropic::Sigma(6, 30.0);
+            noiseModel::Isotropic::shared_ptr pose_correction_noise = noiseModel::Isotropic::Sigma(6, 3.0);
 	
             auto huberPrior = noiseModel::Robust::Create(
                 noiseModel::mEstimator::Cauchy::Create(1.0), pose_correction_noise);
@@ -205,8 +205,8 @@ class IMU_Graph{
 			Matrix33 bias_omega_cov = I_3x3 * pow(gyro_bias_rw_sigma, 2);
 			Matrix66 bias_acc_omega_int =
 				I_6x6 * .0001;  // error in the bias used for preintegration
-			gtsam::Pose3 body_IMU_TF = Pose3(Rot3::Ypr(0.0,-1.57,-1.57), Point3(0.0,0.0,0.0));
-			auto p = PreintegratedCombinedMeasurements::Params::MakeSharedU(9.81);
+			gtsam::Pose3 body_IMU_TF = Pose3(Rot3::Quaternion(0.013489769078155169, 0.8297116036556285, -0.009124618852643316, 0.5579546775681852), Point3(0.0,0.0,0.0));
+			auto p = PreintegratedCombinedMeasurements::Params::MakeSharedU(0);
 			// PreintegrationBase params:
 			p->accelerometerCovariance =
 				measured_acc_cov;  // acc white noise in continuous
@@ -279,7 +279,7 @@ class IMU_Graph{
 			IMUparams = imuParams(); // Defined in last function
 			preintegrated = std::make_shared<gtsam::PreintegratedCombinedMeasurements>(IMUparams, priorBias);
 
-			priorPose = Pose3(Rot3::Ypr(0,0,0), Point3(0,0,0));
+			priorPose = Pose3(Rot3::Quaternion(0.013489769078155169, 0.8297116036556285, -0.009124618852643316, 0.5579546775681852), Point3(0,0,0));
 			cout << "priorPose" << priorPose << endl;
 
 			accel_init_done = false;
