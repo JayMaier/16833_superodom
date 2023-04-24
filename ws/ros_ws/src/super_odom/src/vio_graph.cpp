@@ -66,7 +66,7 @@ std::shared_ptr<gtsam::PreintegratedCombinedMeasurements::Params> VO_IMU_ISAM2::
   gtsam::Pose3 body_IMU_TF = Pose3(Rot3::Ypr(0.0,-1.57,0.0), Point3(0.0,0.0,0.0));
       I_6x6 * 0.0001;  // error in the bias used for preintegration
 
-  gtsam::Pose3 body_IMU_TF = Pose3(Rot3::Ypr(0.0,0.0,0.0)		// auto frame_id = incoming_msg.header.frame_id;
+//   gtsam::Pose3 body_IMU_TF = Pose3(Rot3::Ypr(0.0,0.0,0.0)		// auto frame_id = incoming_msg.header.frame_id;
 
 			// auto vo_msg = incoming_msg.pose;
 

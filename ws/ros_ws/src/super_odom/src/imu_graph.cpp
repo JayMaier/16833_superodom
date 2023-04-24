@@ -51,7 +51,7 @@ class IMU_Graph{
 
 		void initializeSubsAndPubs(){
 			VIO_Sub = nh.subscribe("/vins_estimator/odometry", 1, &IMU_Graph::voCallback, this);
-			IMU_Sub = nh.subscribe("/imu", 1, &IMU_Graph::imuCallback, this);
+			IMU_Sub = nh.subscribe("/imu0", 1, &IMU_Graph::imuCallback, this);
 
 			IMU_Pub = nh.advertise<geometry_msgs::PoseStamped>("imu_graph/pose",1);
 			// imuTimer = nh.createTimer(ros::Duration(0.1), &IMU_Graph::timerCallback);
@@ -59,13 +59,13 @@ class IMU_Graph{
 
 
 
-		void voCallback(const nav_msgs::Odometry &vo_msg){
+		void voCallback(const nav_msgs::Odometry &msg){
 			// TODO: Handle coorindate transformations
             if (!accel_init_done) {return;}
 
-			auto frame_id = vo_msg.header.frame_id;
+			auto frame_id = msg.header.frame_id;
 
-			auto vo_msg = __volget.pose;
+			auto vo_msg = msg.pose.pose;
 
 			gtsam::Pose3 voPrior = gtsam::Pose3(gtsam::Rot3::Quaternion(vo_msg.orientation.w, \
                                             vo_msg.orientation.x, vo_msg.orientation.y\
@@ -78,7 +78,7 @@ class IMU_Graph{
             auto huberPrior = noiseModel::Robust::Create(
                 noiseModel::mEstimator::Cauchy::Create(1.0), pose_correction_noise);
     
-			double timestep = vo.header.stamp.toSec();
+			double timestep = msg.header.stamp.toSec();
 
 			if (frame == 0){
 				newTimestamps[X(0)] = timestep;
@@ -205,7 +205,7 @@ class IMU_Graph{
 			Matrix33 bias_omega_cov = I_3x3 * pow(gyro_bias_rw_sigma, 2);
 			Matrix66 bias_acc_omega_int =
 				I_6x6 * .0001;  // error in the bias used for preintegration
-
+			gtsam::Pose3 body_IMU_TF = Pose3(Rot3::Ypr(0.0,-1.57,-1.57), Point3(0.0,0.0,0.0));
 			auto p = PreintegratedCombinedMeasurements::Params::MakeSharedU(9.81);
 			// PreintegrationBase params:
 			p->accelerometerCovariance =
@@ -220,6 +220,7 @@ class IMU_Graph{
 			p->biasAccCovariance = bias_acc_cov;      // acc bias in continuous
 			p->biasOmegaCovariance = bias_omega_cov;  // gyro bias in continuous
 			p->biasAccOmegaInt = bias_acc_omega_int;
+			p->body_P_sensor = body_IMU_TF;
 
 			return p;
 		}
