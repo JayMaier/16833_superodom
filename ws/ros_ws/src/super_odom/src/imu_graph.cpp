@@ -75,7 +75,7 @@ class IMU_Graph{
                                             gtsam::Point3(vo_msg.position.x, vo_msg.position.y,vo_msg.position.z));
 
         
-            noiseModel::Isotropic::shared_ptr pose_correction_noise = noiseModel::Isotropic::Sigma(6, 3.0);
+            noiseModel::Isotropic::shared_ptr pose_correction_noise = noiseModel::Isotropic::Sigma(6, 1.5);
 	
             auto huberPrior = noiseModel::Robust::Create(
                 noiseModel::mEstimator::Cauchy::Create(1.0), pose_correction_noise);
@@ -192,7 +192,7 @@ class IMU_Graph{
 			initialEstimate.insert(V(0), priorVelocity);
 			
 			//Bias Prior
-			auto biasnoise = noiseModel::Diagonal::Sigmas(Vector6::Constant(1.0));
+			auto biasnoise = noiseModel::Diagonal::Sigmas(Vector6::Constant(50.0));
 			graph.addPrior<imuBias::ConstantBias>(B(0), priorBias, biasnoise);
 			initialEstimate.insert(B(0), priorBias);
 			

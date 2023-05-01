@@ -79,7 +79,7 @@ class IMU_Graph{
                                             gtsam::Point3(vo_msg.position.x, vo_msg.position.y,vo_msg.position.z));
 
         
-            noiseModel::Isotropic::shared_ptr pose_correction_noise = noiseModel::Isotropic::Sigma(6, 3.0);
+            noiseModel::Isotropic::shared_ptr pose_correction_noise = noiseModel::Isotropic::Sigma(6, 0.1);
 	
             auto huberPrior = noiseModel::Robust::Create(
                 noiseModel::mEstimator::Cauchy::Create(1.0), pose_correction_noise);
@@ -88,6 +88,7 @@ class IMU_Graph{
 			cout <<"timestep: "<<  timestep - init_time << endl;
 
             gtsam::Pose3 vo_delta = vo_last.between(vo_curr);
+
 			if (frame == 0){
 				
 				cout << "yo" << endl;
@@ -131,7 +132,6 @@ class IMU_Graph{
 
             smootherISAM2.update(graph, initialEstimate,newTimestamps);
 
-            vo_last = vo_curr;
             
             // cout << "curr estimate" << endl;
             currentEstimate = smootherISAM2.calculateEstimate();
@@ -149,6 +149,8 @@ class IMU_Graph{
             // cout << "in VIO callback" << endl;
             sendTfs(timestep - init_time);
 			}
+
+            vo_last = vo_curr;
             frame ++;
 
             
@@ -197,7 +199,7 @@ class IMU_Graph{
 			initialEstimate.insert(V(0), priorVelocity);
 			
 			//Bias Prior
-			auto biasnoise = noiseModel::Diagonal::Sigmas(Vector6::Constant(1.0));
+			auto biasnoise = noiseModel::Diagonal::Sigmas(Vector6::Constant(50.0));
 			graph.addPrior<imuBias::ConstantBias>(B(0), priorBias, biasnoise);
 			initialEstimate.insert(B(0), priorBias);
 			
